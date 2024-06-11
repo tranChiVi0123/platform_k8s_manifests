@@ -1,0 +1,126 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 100%
+      maxUnavailable: 0%
+  template:
+    metadata:
+      labels:
+        app: gateway
+    spec:
+      containers:
+      - name: gateway
+        image: tranchivi0123/api_gateway:1.0.2
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+        command: ["./gateway"]
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-service
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 100%
+      maxUnavailable: 0%
+  template:
+    metadata:
+      labels:
+        app: auth-service
+    spec:
+      containers:
+      - name: auth-service
+        image: tranchivi0123/api_auth_service:1.0.2
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8001
+        command: ["./auth_service"]
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user-service
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 100%
+      maxUnavailable: 0%
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+      - name: user-service
+        image: tranchivi0123/api_user_service:1.0.2
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8002
+        command: ["./user_service"]
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db-service
+spec:
+  selector:
+    matchLabels:
+      app: db-service
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: db-service
+    spec:
+      containers:
+      - image: mysql:8.0.36
+        name: mysql
+        env:
+          # Use secret in real usage
+        # - name: MYSQL_DATABASE
+        #   value: flezz
+        - name: MYSQL_ROOT_PASSWORD
+          value: flezz
+        - name: MYSQL_USER
+          value: flezz
+        - name: MYSQL_PASSWORD
+          value: flezz
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - name: mysql-persistent-storage
+          mountPath: /var/lib/mysql
+        - name: db-init-script
+          mountPath: /docker-entrypoint-initdb.d/
+      volumes:
+      - name: mysql-persistent-storage
+        persistentVolumeClaim:
+          claimName: mysql-pv-claim
+      - name: db-init-script
+        configMap:
+          name: db-init-script-cm

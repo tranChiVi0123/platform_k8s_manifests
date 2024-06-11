@@ -1,0 +1,204 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-init-script-cm 
+data:
+  init.sql: |-
+    DROP DATABASE IF EXISTS flezz;
+    CREATE DATABASE flezz;
+
+    use flezz
+
+    DROP TABLE IF EXISTS flezz.users_login_datas;
+    DROP TABLE IF EXISTS flezz.hashing_algorithms;
+    DROP TABLE IF EXISTS flezz.email_validation_status;
+    DROP TABLE IF EXISTS flezz.user_accounts;
+    DROP TABLE IF EXISTS flezz.follows;
+    DROP TABLE IF EXISTS flezz.posts;
+    DROP TABLE IF EXISTS flezz.post_reactions_extenal_datas;
+    DROP TABLE IF EXISTS flezz.topics;
+    DROP TABLE IF EXISTS flezz.comments;
+    DROP TABLE IF EXISTS flezz.comment_reactions_extenal_datas;
+    DROP TABLE IF EXISTS flezz.post_reactions;
+    DROP TABLE IF EXISTS flezz.comment_reactions;
+    DROP TABLE IF EXISTS flezz.follow_posts;
+
+    CREATE TABLE `users_login_datas` (
+      `user_account_id` integer PRIMARY KEY AUTO_INCREMENT,
+      `login_name` varchar(255),
+      `password_hash` varchar(255),
+      `password_salt` varchar(255),
+      `hasing_algorithm_id` integer,
+      `email_address` varchar(255),
+      `email_address_verification_code` varchar(255),
+      `email_address_verification_time` timestamp,
+      `validation_email_token` varchar(255),
+      `validation_email_time` timestamp,
+      `email_vadation_status_id` integer,
+      `password_recovery_token` varchar(255),
+      `password_recovery_time` timestamp,
+      `created_at` timestamp,
+      `updated_at` timestamp
+    );
+
+    CREATE TABLE `hashing_algorithms` (
+      `id` integer PRIMARY KEY,
+      `name` varchar(255)
+    );
+
+    CREATE TABLE `email_validation_status` (
+      `id` integer PRIMARY KEY,
+      `status` varchar(255)
+    );
+
+    CREATE TABLE `user_accounts` (
+      `id` integer PRIMARY KEY,
+      `name` varchar(255),
+      `address` varchar(255),
+      `day_of_birth` varchar(255),
+      `gender` varchar(255),
+      `created_at` timestamp,
+      `updated_at` timestamp
+    );
+
+    CREATE TABLE `follows` (
+      `following_user_id` integer,
+      `followed_user_id` integer,
+      `created_at` timestamp,
+      `updated_at` timestamp
+    );
+
+    CREATE TABLE `posts` (
+      `id` integer PRIMARY KEY,
+      `title` varchar(255),
+      `body` text COMMENT 'Content of the post',
+      `user_id` integer,
+      `topic_id` integer,
+      `status` varchar(255),
+      `created_at` timestamp,
+      `updated_at` timestamp
+    );
+
+    CREATE TABLE `post_reactions_extenal_datas` (
+      `post_id` integer PRIMARY KEY,
+      `post_reaction_number` integer
+    );
+
+    CREATE TABLE `topics` (
+      `id` integer PRIMARY KEY,
+      `name` varchar(255),
+      `status` varchar(255),
+      `created_at` timestamp,
+      `updated_at` timestamp
+    );
+
+    CREATE TABLE `comments` (
+      `id` integer PRIMARY KEY,
+      `content` text,
+      `user_id` integer,
+      `post_id` integer,
+      `created_at` timestamp,
+      `updated_at` timestamp
+    );
+
+    CREATE TABLE `comment_reactions_extenal_datas` (
+      `comment_id` integer PRIMARY KEY,
+      `post_reaction_number` integer
+    );
+
+    CREATE TABLE `post_reactions` (
+      `id` integer PRIMARY KEY,
+      `post_reaction_type` varchar(3),
+      `user_id` integer,
+      `post_id` integer,
+      `reaction_type` varchar(3),
+      `created_at` timestamp,
+      `updated_at` timestamp
+    );
+
+    CREATE TABLE `comment_reactions` (
+      `id` integer PRIMARY KEY,
+      `comment_reaction_type` varchar(3),
+      `user_id` integer,
+      `comment_id` integer,
+      `reaction_type` varchar(3),
+      `created_at` timestamp,
+      `updated_at` timestamp
+    );
+
+    CREATE TABLE `follow_posts` (
+      `id` integer PRIMARY KEY,
+      `content` text,
+      `user_id` integer,
+      `post_id` integer,
+      `created_at` timestamp,
+      `updated_at` timestamp
+    );
+
+    -- ALTER TABLE `users_login_datas` ADD FOREIGN KEY (`user_account_id`) REFERENCES `user_accounts` (`id`);
+
+    ALTER TABLE `post_reactions_extenal_datas` ADD FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`);
+
+    ALTER TABLE `comment_reactions_extenal_datas` ADD FOREIGN KEY (`comment_id`) REFERENCES `comments` (`id`);
+
+    ALTER TABLE `users_login_datas` ADD FOREIGN KEY (`hasing_algorithm_id`) REFERENCES `hashing_algorithms` (`id`);
+
+    ALTER TABLE `users_login_datas` ADD FOREIGN KEY (`email_vadation_status_id`) REFERENCES `email_validation_status` (`id`);
+
+    ALTER TABLE `follows` ADD FOREIGN KEY (`following_user_id`) REFERENCES `user_accounts` (`id`);
+
+    ALTER TABLE `follows` ADD FOREIGN KEY (`followed_user_id`) REFERENCES `user_accounts` (`id`);
+
+    ALTER TABLE `posts` ADD FOREIGN KEY (`user_id`) REFERENCES `user_accounts` (`id`);
+
+    ALTER TABLE `posts` ADD FOREIGN KEY (`topic_id`) REFERENCES `topics` (`id`);
+
+    ALTER TABLE `comments` ADD FOREIGN KEY (`user_id`) REFERENCES `user_accounts` (`id`);
+
+    ALTER TABLE `comments` ADD FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`);
+
+    ALTER TABLE `post_reactions` ADD FOREIGN KEY (`user_id`) REFERENCES `user_accounts` (`id`);
+
+    ALTER TABLE `post_reactions` ADD FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`);
+
+    ALTER TABLE `comment_reactions` ADD FOREIGN KEY (`user_id`) REFERENCES `user_accounts` (`id`);
+
+    ALTER TABLE `comment_reactions` ADD FOREIGN KEY (`comment_id`) REFERENCES `comments` (`id`);
+
+    ALTER TABLE `follow_posts` ADD FOREIGN KEY (`user_id`) REFERENCES `user_accounts` (`id`);
+
+    ALTER TABLE `follow_posts` ADD FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`);
+
+    -- user_accounts table
+    insert into user_accounts (id, name, address, day_of_birth, gender, created_at, updated_at) values (1, 'Giraud Gallatly', '5031 Sherman Pass', '4/7/2013', 'Male', '2023-05-10 00:09:50', '2023-10-10 10:39:55');
+    insert into user_accounts (id, name, address, day_of_birth, gender, created_at, updated_at) values (2, 'Ewart Fowgies', '4848 Forster Parkway', '8/25/1997', 'Male', '2023-04-28 12:24:54', '2023-08-22 08:15:42');
+    insert into user_accounts (id, name, address, day_of_birth, gender, created_at, updated_at) values (3, 'Caitlin Haselwood', '9374 Oxford Parkway', '11/5/2000', 'Female', '2023-09-29 20:15:40', '2023-08-06 09:29:40');
+    insert into user_accounts (id, name, address, day_of_birth, gender, created_at, updated_at) values (4, 'Celestina Rydeard', '71469 Surrey Plaza', '9/2/1999', 'Female', '2023-04-04 04:36:15', '2023-10-01 06:52:51');
+    insert into user_accounts (id, name, address, day_of_birth, gender, created_at, updated_at) values (5, 'Boycey Kopecka', '9579 Kensington Trail', '9/21/2008', 'Male', '2023-08-13 14:19:59', '2023-11-01 05:52:53');
+    insert into user_accounts (id, name, address, day_of_birth, gender, created_at, updated_at) values (6, 'Chalmers Rosindill', '95 Prentice Road', '11/10/1999', 'Bigender', '2024-02-11 23:01:14', '2023-05-20 17:08:47');
+    insert into user_accounts (id, name, address, day_of_birth, gender, created_at, updated_at) values (7, 'Cassaundra Prettyjohn', '9129 Mcguire Place', '8/23/2012', 'Female', '2023-12-06 18:08:14', '2023-08-19 05:31:01');
+    insert into user_accounts (id, name, address, day_of_birth, gender, created_at, updated_at) values (8, 'Tessy McKenna', '8 Forest Dale Lane', '11/24/2005', 'Female', '2023-11-07 12:02:49', '2023-11-10 02:01:54');
+    insert into user_accounts (id, name, address, day_of_birth, gender, created_at, updated_at) values (9, 'Verene Deam', '49405 Becker Alley', '9/4/2001', 'Female', '2024-02-22 05:47:47', '2024-01-24 02:45:41');
+    insert into user_accounts (id, name, address, day_of_birth, gender, created_at, updated_at) values (10, 'Haleigh Stokey', '55 Mayer Parkway', '8/10/1999', 'Male', '2023-07-07 08:55:56', '2023-07-06 22:03:23');
+
+    -- hashing_algorithms table
+    insert into hashing_algorithms (id, name) values (1, 'BCRYPT');
+    insert into hashing_algorithms (id, name) values (2, 'PBKDF2');
+
+    -- email_validation_status table
+    insert into email_validation_status (id, status) values (1, 'VALIDATED');
+    insert into email_validation_status (id, status) values (2, 'INCOMPLETE');
+    insert into email_validation_status (id, status) values (3, 'NOT_VALIDATED');
+
+    -- users_login_datas table
+    insert into users_login_datas (user_account_id, login_name, password_hash, password_salt, hasing_algorithm_id, email_address, email_address_verification_code, email_address_verification_time, validation_email_token, validation_email_time, email_vadation_status_id, password_recovery_token, password_recovery_time, created_at, updated_at) values (1, 'aferrero0', '$2a$10$.aJA87570ZfmfwfkXMwLc.w4tE9OXyHVrvu20XZSJuHWTBFYb5H0K', '8237753313', 1, 'akingzeth0@sourceforge.net', 123456, '2024-12-31 16:18:54', 'd31ab67b66583f3e6f15af217eaaf46d7f5986c8cd227d1b56a4ab3ff5a617d7', '2023-12-26 16:18:54', 1, '00f2562c5c0dc872e4c1e590cc147a922aca448e41cd79359531005384f50c59', '2023-08-03 03:36:25', '2023-12-07 04:33:41', '2024-02-22 10:20:01');
+    insert into users_login_datas (user_account_id, login_name, password_hash, password_salt, hasing_algorithm_id, email_address, email_address_verification_code, email_address_verification_time, validation_email_token, validation_email_time, email_vadation_status_id, password_recovery_token, password_recovery_time, created_at, updated_at) values (2, 'llanmeid1', '$2a$10$.aJA87570ZfmfwfkXMwLc.w4tE9OXyHVrvu20XZSJuHWTBFYb5H0K', '5932926929', 1, 'aharrington1@sfgate.com', 123456, '2024-12-31 16:18:54', 'dba0f79ce1e889ba3e5c3421d840df837c9f3f01dbbc6bd24afed4692e5d9152', '2023-05-21 21:33:16', 1, 'c9d60c24acd46d235df68f7c3e4e1784abda17e6055481f05992eaec019bfaf1', '2023-12-28 20:18:16', '2023-10-01 06:48:01', '2023-06-21 19:56:54');
+    insert into users_login_datas (user_account_id, login_name, password_hash, password_salt, hasing_algorithm_id, email_address, email_address_verification_code, email_address_verification_time, validation_email_token, validation_email_time, email_vadation_status_id, password_recovery_token, password_recovery_time, created_at, updated_at) values (3, 'tstileman2', '$2a$10$.aJA87570ZfmfwfkXMwLc.w4tE9OXyHVrvu20XZSJuHWTBFYb5H0K', '8836744583', 1, 'ecussen2@gov.uk', 123456, '2024-12-31 16:18:54', 'ef504cfe24726756ba985e188164772af209153e8d5e3e88b5e22e9b371e17dc', '2023-09-19 03:27:25', 1, '7da5a8d884a24ef11356d9cda89e45c7dfe99b93cad0ad438367fc1a87ab27b7', '2023-05-07 21:16:53', '2023-10-28 07:26:04', '2023-03-20 14:12:17');
+    insert into users_login_datas (user_account_id, login_name, password_hash, password_salt, hasing_algorithm_id, email_address, email_address_verification_code, email_address_verification_time, validation_email_token, validation_email_time, email_vadation_status_id, password_recovery_token, password_recovery_time, created_at, updated_at) values (4, 'shinge3', '$2a$10$.aJA87570ZfmfwfkXMwLc.w4tE9OXyHVrvu20XZSJuHWTBFYb5H0K', '4404784600', 1, 'bburke3@taobao.com', 123456, '2024-12-31 16:18:54', '31d399cdcccfbd5c4b4a795d8d81b1ab80a53001a093381d347f87e6b117adf9', '2023-05-15 10:40:55', 1, '0c4e7a6a384331d55fdd97ecdc935732eb582b6b55dacb65bd3907bd68c1c002', '2023-11-18 20:19:20', '2023-11-09 02:58:15', '2024-02-09 23:20:29');
+    insert into users_login_datas (user_account_id, login_name, password_hash, password_salt, hasing_algorithm_id, email_address, email_address_verification_code, email_address_verification_time, validation_email_token, validation_email_time, email_vadation_status_id, password_recovery_token, password_recovery_time, created_at, updated_at) values (5, 'kcay4', '$2a$10$.aJA87570ZfmfwfkXMwLc.w4tE9OXyHVrvu20XZSJuHWTBFYb5H0K', '7936543759', 1, 'dodare4@networkadvertising.org', 123456, '2024-12-31 16:18:54', '88b495110eeb6c32213d7d551e3816b23aa904587466e01ca4d9166774c92bbe', '2023-09-21 13:22:42', 1, '95f826347a19083e1a72060353814536e36ec95f946320deb05ad8fd33de1e0e', '2023-04-24 01:05:28', '2023-12-26 22:26:24', '2023-05-16 09:56:21');
+    insert into users_login_datas (user_account_id, login_name, password_hash, password_salt, hasing_algorithm_id, email_address, email_address_verification_code, email_address_verification_time, validation_email_token, validation_email_time, email_vadation_status_id, password_recovery_token, password_recovery_time, created_at, updated_at) values (6, 'eblazey5', '$2a$10$.aJA87570ZfmfwfkXMwLc.w4tE9OXyHVrvu20XZSJuHWTBFYb5H0K', '8160571593', 1, 'jspellissy5@technorati.com', 123456, '2024-12-31 16:18:54', '0d8f84527249f12e7d0a0ad923a80a472c693e51dff605cf9ca7e3b5ef18a156', '2023-10-09 12:48:51', 1, 'ee47d6a35ffa23b9600db950fbee423ee655a18a435d0e067c15edc9702d2f84', '2023-09-02 01:15:30', '2023-12-01 10:24:33', '2024-01-24 00:24:33');
+    insert into users_login_datas (user_account_id, login_name, password_hash, password_salt, hasing_algorithm_id, email_address, email_address_verification_code, email_address_verification_time, validation_email_token, validation_email_time, email_vadation_status_id, password_recovery_token, password_recovery_time, created_at, updated_at) values (7, 'fbuxy6', '$2a$10$.aJA87570ZfmfwfkXMwLc.w4tE9OXyHVrvu20XZSJuHWTBFYb5H0K', '5864243914', 1, 'kswinfen6@eepurl.com', 123456, '2024-12-31 16:18:54', '622388eb7768df3e529b4daf6e2054a476d7a3a017d065ee441f2a66e9b389ef', '2023-07-05 13:44:20', 1, '67a262497574a6f03191ae287126b81729753dcad05df6d81365dd6f9ce93e62', '2023-05-30 19:58:23', '2023-05-27 23:53:40', '2023-04-10 14:40:03');
+    insert into users_login_datas (user_account_id, login_name, password_hash, password_salt, hasing_algorithm_id, email_address, email_address_verification_code, email_address_verification_time, validation_email_token, validation_email_time, email_vadation_status_id, password_recovery_token, password_recovery_time, created_at, updated_at) values (8, 'kpetras7', '$2a$10$.aJA87570ZfmfwfkXMwLc.w4tE9OXyHVrvu20XZSJuHWTBFYb5H0K', '2751933254', 1, 'zprichet7@quantcast.com', 123456, '2024-12-31 16:18:54', '7311ade76cfa804fb48e40e253551136d156c4b69658f32fd2f62aae4575746f', '2023-10-10 13:58:00', 1, 'a4b47061e9177c43ab3948b851d6df1f0803ecdeb5d883f2061501355c976019', '2023-07-09 08:55:04', '2023-07-05 10:16:43', '2024-01-11 00:38:25');
+    insert into users_login_datas (user_account_id, login_name, password_hash, password_salt, hasing_algorithm_id, email_address, email_address_verification_code, email_address_verification_time, validation_email_token, validation_email_time, email_vadation_status_id, password_recovery_token, password_recovery_time, created_at, updated_at) values (9, 'bpickthorn8', '$2a$10$.aJA87570ZfmfwfkXMwLc.w4tE9OXyHVrvu20XZSJuHWTBFYb5H0K', '2941538275', 1, 'wmesnard8@redcross.org', 123456, '2024-12-31 16:18:54', '6ce8900f65d238a88046f943a6159d9cd7be3451dce783f8419df118785145e7', '2023-09-09 16:04:09', 1, '78ed344331904616019dc9ed14a8df9d1fffba9ab9179662711166917c3655a2', '2023-08-09 11:34:06', '2024-02-03 15:35:22', '2023-09-12 23:16:01');
+    insert into users_login_datas (user_account_id, login_name, password_hash, password_salt, hasing_algorithm_id, email_address, email_address_verification_code, email_address_verification_time, validation_email_token, validation_email_time, email_vadation_status_id, password_recovery_token, password_recovery_time, created_at, updated_at) values (10, 'fbartos9', '$2a$10$.aJA87570ZfmfwfkXMwLc.w4tE9OXyHVrvu20XZSJuHWTBFYb5H0K', '2214537481', 1, 'bshort9@google.nl', 123456, '2024-12-31 16:18:54', '8b3a434c9b69b5e09a4b439d44d3e80f86618ae7311e893a8d0e7580fee7b30e', '2023-09-26 06:03:37', 1, 'c5da7b1b8ed89a002dd78e9d458ad5876270fa76018f3871831e25986bc98890', '2023-09-08 02:00:58', '2023-09-17 16:47:46', '2023-04-15 06:33:34');
+
